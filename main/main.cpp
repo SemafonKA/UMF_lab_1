@@ -67,7 +67,7 @@ public:
       size_t wide = this->wide();
       size_t halfWide = wide / 2;
 
-       // Итерационный цикл
+      // Итерационный цикл
       for (it = 1; (it <= maxIterations) && (dif > maxDif); it++)
       {
          dif = 0;
@@ -114,10 +114,12 @@ public:
       if (isinf(dif))
       {
          cout << "Выход по переполнению метода" << endl << endl;
-      } else if (it > maxIterations)
+      }
+      else if (it > maxIterations)
       {
          cout << "Выход по числу итераций" << endl << endl;
-      } else
+      }
+      else
       {
          cout << "Выход по относительной невязке" << endl << endl;
       }
@@ -150,7 +152,7 @@ public:
    NodeType type = NodeType::undefined;
    int numOfBoundaryRegion = 0;        // Не используется, если type != firstBoundary || secondBoundary
 
-   GridNode(double coordX = 0.0, double coordY = 0.0) : coordX{coordX}, coordY{coordY} {}
+   GridNode(double coordX = 0.0, double coordY = 0.0) : coordX{ coordX }, coordY{ coordY } {}
 };
 
 
@@ -294,7 +296,6 @@ vector<GridNode> GenerateGrid() {
 
    grid.resize(xStepsCount * yStepsCount);
 
-
    for (const auto& gridMaskElem : gridMask) {
       for (size_t i = gridMaskElem.yBeginInd; i < gridMaskElem.yEndInd; i++) {
          for (size_t j = gridMaskElem.xBeginInd; j < gridMaskElem.xEndInd; j++) {
@@ -302,6 +303,27 @@ vector<GridNode> GenerateGrid() {
             if (node.type == NodeType::undefined) {
                node.coordX = xRanges.at(j);
                node.coordY = yRanges.at(i);
+               if (j > 0) {
+                  node.leftNode = &(grid.at(i * xStepsCount + j - 1));
+               }
+               if (j + 1 < xStepsCount) {
+                  node.rightNode = &(grid.at(i * xStepsCount + j + 1));
+               }
+               if (i > 0) {
+                  node.bottomNode = &(grid.at((i - 1) * xStepsCount + j));
+               }
+               if (i + 1 < yStepsCount) {
+                  node.topNode = &(grid.at((i + 1) * xStepsCount + j));
+               }
+               if (gridMaskElem.isFictive) {
+                  node.type = NodeType::fictive;
+               }
+               else {
+                  node.type = NodeType::normal;
+               }
+            }
+            else if (node.type == NodeType::fictive && !gridMaskElem.isFictive) {
+               node.type = NodeType::normal;
             }
          }
       }

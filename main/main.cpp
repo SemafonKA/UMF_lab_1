@@ -50,24 +50,26 @@ int main() {
             type = "none";
             break;
          }
-         //outStream << format("Node: {:<69}, value: {: 20.14e}\n",
-         //   format("(x:{: 20.14e},y:{: 20.14e}, type:{})", node.coordX, node.coordY, type), ans.at(i * grid.sizeX + j));
+         //auto nodeStr = format("(x:{: 20.14e},y:{: 20.14e}, type:{})", node.coordX, node.coordY, type);
+         //outStream << format("Node: {:<69}, value: {: 20.14e}\n", nodeStr, ans.at(i * grid.sizeX + j));
 
          if (node.type != NodeType::fictive && !isAlmostEq(firstBoundaryAt(node.coordX, node.coordY), 0.0)) {
-            normDeltaU += pow((ans.at(i * grid.sizeX + j) - firstBoundaryAt(node.coordX, node.coordY)) / firstBoundaryAt(node.coordX, node.coordY), 2);
+            auto deltaU = (ans.at(i * grid.sizeX + j) - firstBoundaryAt(node.coordX, node.coordY)) / firstBoundaryAt(node.coordX, node.coordY);
+            normDeltaU += deltaU * deltaU;
          }
 
 
 #ifndef NDEBUG
          if (node.type != NodeType::fictive && !isAlmostEq(ans.at(i * grid.sizeX + j), firstBoundaryAt(node.coordX, node.coordY))) {
-            outStream << "!!!!!!!!!!!!!!!!!!Этот узел не похож на верный ответ!!!!!!!!!!!!!!!!!!!\n";
-            outStream << format("!!!!!!!!!!!!!!!!!!Ожидалось: {:20.15e} !!!!!!!!!!!!!!!!!!!\n", firstBoundaryAt(node.coordX, node.coordY));
-            outStream << format("!!!!!!!!!!!!!!!!!!Погрешность: {:20.15e}!!!!!!!!!!!!!!!!!!!\n", abs(ans.at(i * grid.sizeX + j) - firstBoundaryAt(node.coordX, node.coordY)));
+            outStream << format("{:!^105}\n", " Этот узел не похож на верный ответ ");
+            outStream << format("{:!^105}\n", format(" Ожидалось: {: 20.15e} ", firstBoundaryAt(node.coordX, node.coordY)));
+            outStream << format("{:!^105}\n", format(" Погрешность: {: 20.15e} ", abs(ans.at(i * grid.sizeX + j) - firstBoundaryAt(node.coordX, node.coordY))));
+            outStream << format("{:!^105}\n", format(" Относ. погрешность: {: 20.15e} ", (abs(ans.at(i * grid.sizeX + j) - firstBoundaryAt(node.coordX, node.coordY))) / firstBoundaryAt(node.coordX, node.coordY)));
          }
 #endif // !NDEBUG
       }
       //outStream << endl;
    }
 
-   outStream << format("Норма вектора deltaU равна {:20.14e}\n", sqrt(normDeltaU));
+   outStream << format("Норма вектора deltaU равна {: 20.14e}\n", sqrt(normDeltaU));
 }

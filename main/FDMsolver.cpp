@@ -87,7 +87,7 @@ std::vector<double> FDMsolver::solve() {
 
     // Решаем СЛАУ
     double dif = 0.0;
-    mat.seidelSolve(rightVec, ans, dif, 0.8, 500, 1e-15);
+    mat.seidelSolve(rightVec, ans, dif, 1.0, 10000, 1e-15);
 
     return ans;
 }

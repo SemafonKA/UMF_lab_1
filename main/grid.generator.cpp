@@ -1,4 +1,5 @@
 #include "grid.generator.h"
+#include <cmath>
 
 inline bool isAlmostEq(double _first, double _second, double maxRelDif) {
     double delta = std::abs(_first - _second);
@@ -48,13 +49,13 @@ Grid::Grid Grid::GenerateGrid() {
       yFrom = 0.0;
 
       // Равномерная сетка
-      //double frac = 1;
-      //xRangesComp.push_back(GridRange(3.0, 1.5 / frac));
-      //xRangesComp.push_back(GridRange(6.0, 1.5 / frac));
-      //xRangesComp.push_back(GridRange(9.0, 1.5 / frac));
+      //double frac = 2;
+      //xRangesComp.push_back(GridRange(3.0, 3.0 / frac));
+      //xRangesComp.push_back(GridRange(6.0, 3.0 / frac));
+      //xRangesComp.push_back(GridRange(9.0, 3.0 / frac));
 
-      //yRangesComp.push_back(GridRange(3.0, 1.5 / frac));
-      //yRangesComp.push_back(GridRange(6.0, 1.5 / frac));
+      //yRangesComp.push_back(GridRange(3.0, 3.0 / frac));
+      //yRangesComp.push_back(GridRange(6.0, 3.0 / frac));
 
       // Неравномерная сетка с постоянным шагом в каждой области
       //double frac = 1;
@@ -74,9 +75,14 @@ Grid::Grid Grid::GenerateGrid() {
       //yRangesComp.push_back(GridRange(6.5, 0.5, 2.0));
 
       // Сетка с одной областью
-      double frac = 500.0;
-      xRangesComp.push_back(GridRange(6.0, 6.0 / frac));
-      yRangesComp.push_back(GridRange(6.0, 6.0 / frac));
+      //double frac = 2.0;
+      //xRangesComp.push_back(GridRange(6.0, 6.0 / frac));
+      //yRangesComp.push_back(GridRange(6.0, 6.0 / frac));
+      
+      // Сетка с одной областью для синуса
+      double frac = 4.0;
+      xRangesComp.push_back(GridRange(1.0, 1.0 / frac));
+      yRangesComp.push_back(GridRange(1.0, 1.0 / frac));
    }
 
    // Считываем маску сетки
@@ -126,10 +132,16 @@ Grid::Grid Grid::GenerateGrid() {
       //edges.push_back(BoundaryEdge::alongX(6.5, 0.0, 9.0));
 
       // Для сетки из одной области
-      edges.push_back(BoundaryEdge::alongX(0.0, 0.0, 6.0));
-      edges.push_back(BoundaryEdge::alongX(6.0, 0.0, 6.0));
-      edges.push_back(BoundaryEdge::alongY(0.0, 0.0, 6.0));
-      edges.push_back(BoundaryEdge::alongY(6.0, 0.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongX(0.0, 0.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongX(6.0, 0.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongY(0.0, 0.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongY(6.0, 0.0, 6.0));
+
+      // Для сетки из одной области для синусов
+      edges.push_back(BoundaryEdge::alongX(0.0, 0.0, 1.0));
+      edges.push_back(BoundaryEdge::alongX(1.0, 0.0, 1.0));
+      edges.push_back(BoundaryEdge::alongY(0.0, 0.0, 1.0));
+      edges.push_back(BoundaryEdge::alongY(1.0, 0.0, 1.0));
    }
 
    // Декомпрессируем сетку, записываем индексы границ каждой сетки, заодно проверяем на то, чтобы она совпадала по шагам с границами
@@ -140,24 +152,45 @@ Grid::Grid Grid::GenerateGrid() {
    for (std::size_t i = 0; i < xRangesComp.size(); i++) {
       const auto& range = xRangesComp.at(i);
       std::size_t indBegin = xRanges.size() - 1;
-      // Находим крайнее значение, которое на следующем шаге станет близко к [range.to], либо которое превысит [range.to]
-      auto currentStep = range.firstStep;
-      while (prevValue < range.to && !isAlmostEq(prevValue + currentStep, range.to)) {
-         prevValue += currentStep;
-         currentStep *= range.stepMultiplier;
 
+      // Обработка для сеток без умножения на шаг
+      if (!range.isMultiplied()) {
+         auto step = range.firstStep;
+         auto stepCounts = (range.to - prevValue) / step;
+         // Если число шагов не совпадает со своим округлением
+         if (!isAlmostEq(stepCounts, round(stepCounts))) {
+            throw std::runtime_error(
+               std::format("Диапазон по оси Х [to:{},step:{},mult:{}] не попадает по шагу в конец диапазона.", range.to, range.firstStep, range.stepMultiplier)
+            );
+         }
+         stepCounts = round(stepCounts);
+         double currentValue;
+         for (size_t i = 0; i < stepCounts; i++) {
+            currentValue = prevValue + (i + 1) * step;
+            xRanges.push_back(currentValue);
+         }
+         prevValue = range.to;
+      }
+      else { // Костыль для сеток с вычисляемым шагом
+         // Находим крайнее значение, которое на следующем шаге станет близко к [range.to], либо которое превысит [range.to]
+         auto currentStep = range.firstStep;
+         while (prevValue < range.to && !isAlmostEq(prevValue + currentStep, range.to)) {
+            prevValue += currentStep;
+            currentStep *= range.stepMultiplier;
+
+            xRanges.push_back(prevValue);
+         }
+         // Если значение + шаг не близко к range.to, то сетка не совпадает
+         if (!isAlmostEq(prevValue + currentStep, range.to)) {
+            throw std::runtime_error(
+               std::format("Диапазон по оси Х [to:{},step:{},mult:{}] не попадает по шагу в конец диапазона.", range.to, range.firstStep, range.stepMultiplier)
+            );
+         }
+
+         // В конце присваиваем конец сетки для исключения погрешностей
+         prevValue = range.to;
          xRanges.push_back(prevValue);
       }
-      // Если значение + шаг не близко к range.to, то сетка не совпадает
-      if (!isAlmostEq(prevValue + currentStep, range.to)) {
-         throw std::runtime_error(
-            std::format("Диапазон по оси Х [to:{},step:{},mult:{}] не попадает по шагу в конец диапазона.", range.to, range.firstStep, range.stepMultiplier)
-         );
-      }
-
-      // В конце присваиваем конец сетки для исключения погрешностей
-      prevValue = range.to;
-      xRanges.push_back(prevValue);
 
       // Создаём соответствие масок и индексов полноценной сетки
       std::size_t indEnd = xRanges.size();
@@ -172,20 +205,40 @@ Grid::Grid Grid::GenerateGrid() {
       const auto& range = yRangesComp.at(i);
       std::size_t indBegin = yRanges.size() - 1;
 
-      auto currentStep = range.firstStep;
-      while (prevValue < range.to && !isAlmostEq(prevValue + currentStep, range.to)) {
-         prevValue += currentStep;
-         currentStep *= range.stepMultiplier;
+      // Обработка для сеток без умножения на шаг
+      if (!range.isMultiplied()) {
+         auto step = range.firstStep;
+         auto stepCounts = (range.to - prevValue) / step;
+         // Если число шагов не совпадает со своим округлением
+         if (!isAlmostEq(stepCounts, round(stepCounts))) {
+            throw std::runtime_error(
+               std::format("Диапазон по оси Y [to:{},step:{},mult:{}] не попадает по шагу в конец диапазона.", range.to, range.firstStep, range.stepMultiplier)
+            );
+         }
+         stepCounts = round(stepCounts);
+         double currentValue;
+         for (size_t i = 0; i < stepCounts; i++) {
+            currentValue = prevValue + (i + 1) * step;
+            yRanges.push_back(currentValue);
+         }
+         prevValue = range.to;
+      }
+      else {
+         auto currentStep = range.firstStep;
+         while (prevValue < range.to && !isAlmostEq(prevValue + currentStep, range.to)) {
+            prevValue += currentStep;
+            currentStep *= range.stepMultiplier;
 
+            yRanges.push_back(prevValue);
+         }
+         if (!isAlmostEq(prevValue + currentStep, range.to)) {
+            throw std::runtime_error(
+               std::format("Диапазон по оси Y [to:{},step:{},mult:{}] не попадает по шагу в конец диапазона.", range.to, range.firstStep, range.stepMultiplier)
+            );
+         }
+         prevValue = range.to;
          yRanges.push_back(prevValue);
       }
-      if (!isAlmostEq(prevValue + currentStep, range.to)) {
-         throw std::runtime_error(
-            std::format("Диапазон по оси Y [to:{},step:{},mult:{}] не попадает по шагу в конец диапазона.", range.to, range.firstStep, range.stepMultiplier)
-         );
-      }
-      prevValue = range.to;
-      yRanges.push_back(prevValue);
 
       std::size_t indEnd = yRanges.size();
       for (std::size_t j = 0; j < xRangesComp.size(); j++) {

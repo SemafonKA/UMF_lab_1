@@ -27,7 +27,7 @@ double gammaAt(double x, double y) {
 }
 
 double funcAt(double x, double y) {
-   return 3.0*sin(x+y);
+   return 3*sin(x+y);
 }
  
 // double firstBoundaryAt(double x, double y) {

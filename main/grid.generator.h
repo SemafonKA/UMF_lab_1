@@ -18,7 +18,7 @@ namespace Grid {
       GridRange(double to, double firstStep, double stepMult = 1.0) :
          to(to), firstStep(firstStep), stepMultiplier(stepMult) {}
 
-      bool isMultiplied() const { return stepMultiplier == 1.0; };
+      bool isMultiplied() const { return stepMultiplier != 1.0; };
    };
 
    class GridMaskElement {

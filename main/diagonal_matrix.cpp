@@ -13,7 +13,7 @@ double Norm(const std::vector<double>& X)
 
 void DiagonalMatrix::setForm(std::size_t size, std::vector<int> shifts) {
     if ((shifts.size() & 1) != 1) {
-        throw std::runtime_error("Number of diagonals must be the odd");
+        throw std::runtime_error("Number of diagonals must be odd");
     }
 
     diagsShift = std::move(shifts);

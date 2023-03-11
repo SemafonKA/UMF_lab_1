@@ -49,22 +49,22 @@ Grid::Grid Grid::GenerateGrid() {
       yFrom = 0.0;
 
       // Равномерная сетка
-      double frac = 2;
-      xRangesComp.push_back(GridRange(3.0, 3.0 / frac));
-      xRangesComp.push_back(GridRange(6.0, 3.0 / frac));
-      xRangesComp.push_back(GridRange(9.0, 3.0 / frac));
-
-      yRangesComp.push_back(GridRange(3.0, 3.0 / frac));
-      yRangesComp.push_back(GridRange(6.0, 3.0 / frac));
-
-      // Неравномерная сетка с постоянным шагом в каждой области
-      //double frac = 1;
+      //double frac = 2;
       //xRangesComp.push_back(GridRange(3.0, 3.0 / frac));
-      //xRangesComp.push_back(GridRange(6.0, 1.5 / frac));
+      //xRangesComp.push_back(GridRange(6.0, 3.0 / frac));
       //xRangesComp.push_back(GridRange(9.0, 3.0 / frac));
 
       //yRangesComp.push_back(GridRange(3.0, 3.0 / frac));
-      //yRangesComp.push_back(GridRange(5.0, 1.5 / frac));
+      //yRangesComp.push_back(GridRange(6.0, 3.0 / frac));
+
+      // Неравномерная сетка с постоянным шагом в каждой области
+      double frac = 1;
+      xRangesComp.push_back(GridRange(3.0, 3.0 / frac));
+      xRangesComp.push_back(GridRange(6.0, 1.5 / frac));
+      xRangesComp.push_back(GridRange(9.0, 3.0 / frac));
+
+      yRangesComp.push_back(GridRange(3.0, 3.0 / frac));
+      yRangesComp.push_back(GridRange(6.0, 1.5 / frac));
 
       // Неравномерная сетка
       //xRangesComp.push_back(GridRange(3.0, 3.0));
@@ -74,13 +74,13 @@ Grid::Grid Grid::GenerateGrid() {
       //yRangesComp.push_back(GridRange(3.0, 1.0, 2.0));
       //yRangesComp.push_back(GridRange(6.5, 0.5, 2.0));
 
-      // Сетка с одной областью
+       //Сетка с одной областью
       //double frac = 2.0;
       //xRangesComp.push_back(GridRange(6.0, 6.0 / frac));
       //yRangesComp.push_back(GridRange(6.0, 6.0 / frac));
 
       // Сетка с одной областью для синуса
-      //double frac = 2.0;
+      //double frac = 6.0;
       //xRangesComp.push_back(GridRange(1.0, 1.0 / frac));
       //yRangesComp.push_back(GridRange(1.0, 1.0 / frac));
    }
@@ -102,6 +102,16 @@ Grid::Grid Grid::GenerateGrid() {
    // Считываем краевые условия
    {
       // Для равномерной сетки
+      //edges.push_back(BoundaryEdge::alongX(0.0, 3.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongY(3.0, 0.0, 3.0));
+      //edges.push_back(BoundaryEdge::alongY(6.0, 0.0, 3.0));
+      //edges.push_back(BoundaryEdge::alongX(3.0, 0.0, 3.0));
+      //edges.push_back(BoundaryEdge::alongX(3.0, 6.0, 9.0));
+      //edges.push_back(BoundaryEdge::alongY(0.0, 3.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongY(9.0, 3.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongX(6.0, 0.0, 9.0));
+
+      // Для неравномерной сетки с постоянным шагом
       edges.push_back(BoundaryEdge::alongX(0.0, 3.0, 6.0));
       edges.push_back(BoundaryEdge::alongY(3.0, 0.0, 3.0));
       edges.push_back(BoundaryEdge::alongY(6.0, 0.0, 3.0));
@@ -110,16 +120,6 @@ Grid::Grid Grid::GenerateGrid() {
       edges.push_back(BoundaryEdge::alongY(0.0, 3.0, 6.0));
       edges.push_back(BoundaryEdge::alongY(9.0, 3.0, 6.0));
       edges.push_back(BoundaryEdge::alongX(6.0, 0.0, 9.0));
-
-      // Для неравномерной сетки с постоянным шагом
-      //edges.push_back(BoundaryEdge::alongX(0.0, 3.0, 6.0));
-      //edges.push_back(BoundaryEdge::alongY(3.0, 0.0, 3.0));
-      //edges.push_back(BoundaryEdge::alongY(6.0, 0.0, 3.0));
-      //edges.push_back(BoundaryEdge::alongX(3.0, 0.0, 3.0));
-      //edges.push_back(BoundaryEdge::alongX(3.0, 6.0, 9.0));
-      //edges.push_back(BoundaryEdge::alongY(0.0, 3.0, 5.0));
-      //edges.push_back(BoundaryEdge::alongY(9.0, 3.0, 5.0));
-      //edges.push_back(BoundaryEdge::alongX(5.0, 0.0, 9.0));
 
       // Для неравномерной сетки
       //edges.push_back(BoundaryEdge::alongX(0.0, 3.0, 6.0));
@@ -329,7 +329,7 @@ Grid::Grid Grid::GenerateGrid() {
    return grid;
 }
 
-inline Grid::GridMaskElement Grid::GridMaskElement::fictive() {
+Grid::GridMaskElement Grid::GridMaskElement::fictive() {
    auto elem = GridMaskElement();
    elem.isFictive = true;
    return elem;

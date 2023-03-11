@@ -14,8 +14,8 @@ using NodeType = Grid::NodeType;
 
 int main() {
    setlocale(LC_ALL, "ru-RU.utf8");
-   //auto outStream = ofstream("out.txt");
-   auto& outStream = cout;
+   auto outStream = ofstream("out.txt");
+   //auto& outStream = cout;
 
    // Пока что сетка генерируется в фиксированном формате формы Т (либо иной другой, если её захардкодить)
    Grid::Grid grid;
@@ -35,8 +35,10 @@ int main() {
       cerr << e.what() << endl;
    }
 
+#ifndef NDEBUG
    double normDeltaU = 0.0;
    double normU = 0.0;
+#endif
 
    outStream << "Полученное решение: \n\n";
    for (size_t i = 0; i < grid.sizeY; i++) {
@@ -65,9 +67,10 @@ int main() {
             type = "none";
             break;
          }
-         //auto nodeStr = format("(x:{: 20.14e},y:{: 20.14e}, type:{})", node.coordX, node.coordY, type);
-         //outStream << format("Node: {:<70}, value: {: 20.14e}\n", nodeStr, ans.at(i * grid.sizeX + j));
+         auto nodeStr = format("(x:{: 20.14e},y:{: 20.14e}, type:{})", node.coordX, node.coordY, type);
+         outStream << format("Node: {:<70}, value: {: 20.14e}\n", nodeStr, ans.at(i * grid.sizeX + j));
 
+#ifndef NDEBUG
          if (node.type != NodeType::fictive && !isAlmostEq(firstBoundaryAt(node.coordX, node.coordY), 0.0)) {
             auto u = firstBoundaryAt(node.coordX, node.coordY);
             normU = u * u;
@@ -76,8 +79,6 @@ int main() {
             normDeltaU += deltaU * deltaU;
          }
 
-
-#ifndef NDEBUG
          if (node.type != NodeType::fictive && !isAlmostEq(ans.at(i * grid.sizeX + j), firstBoundaryAt(node.coordX, node.coordY))) {
             outStream << format("{:!^106}\n", " Этот узел не похож на верный ответ ");
             outStream << format("{:!^106}\n", format(" Ожидалось: {: 20.15e} ", firstBoundaryAt(node.coordX, node.coordY)));
@@ -86,9 +87,11 @@ int main() {
          }
 #endif // !NDEBUG
       }
-      outStream << endl;
+      //outStream << endl;
    }
 
+#ifndef NDEBUG
    outStream << format("Норма вектора deltaU равна {: 20.14e}\n", sqrt(normDeltaU));
    outStream << format("Нормированная норма вектора deltaU равна {: 20.14e}\n", sqrt(normDeltaU / normU));
+#endif
 }

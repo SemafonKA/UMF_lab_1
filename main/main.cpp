@@ -27,7 +27,19 @@ int main() {
    }
    vector<double> ans;
 
-   auto solver = FDMsolver(grid, firstBoundaryAt, secondBoundaryAt, lambdaAt, lambdaDifxAt, lambdaDifyAt, gammaAt, funcAt);
+   auto solver = FDMsolver(
+      grid,
+      firstBoundaryAt,
+      secondBoundaryAt,
+      thirdBoundaryAt,
+      thirdBoundaryBetaAt,
+      lambdaAt,
+      lambdaDifxAt,
+      lambdaDifyAt,
+      gammaAt,
+      funcAt
+   );
+
    try {
       ans = solver.solve();
    }
@@ -63,6 +75,10 @@ int main() {
             type = "secondBoundary";
             break;
 
+         case NodeType::thirdBoundary:
+            type = "thirdBoundary";
+            break;
+
          default:
             type = "none";
             break;
@@ -71,19 +87,19 @@ int main() {
          outStream << format("Node: {:<70}, value: {: 20.14e}\n", nodeStr, ans.at(i * grid.sizeX + j));
 
 #ifndef NDEBUG
-         if (node.type != NodeType::fictive && !isAlmostEq(firstBoundaryAt(node.coordX, node.coordY), 0.0)) {
-            auto u = firstBoundaryAt(node.coordX, node.coordY);
+         if (node.type != NodeType::fictive && !isAlmostEq(firstBoundaryAt(node.boundaryRegionNum, node.coordX, node.coordY), 0.0)) {
+            auto u = firstBoundaryAt(node.boundaryRegionNum, node.coordX, node.coordY);
             normU = u * u;
 
-            auto deltaU = (ans.at(i * grid.sizeX + j) - firstBoundaryAt(node.coordX, node.coordY));
+            auto deltaU = (ans.at(i * grid.sizeX + j) - firstBoundaryAt(node.boundaryRegionNum, node.coordX, node.coordY));
             normDeltaU += deltaU * deltaU;
          }
 
-         if (node.type != NodeType::fictive && !isAlmostEq(ans.at(i * grid.sizeX + j), firstBoundaryAt(node.coordX, node.coordY))) {
+         if (node.type != NodeType::fictive && !isAlmostEq(ans.at(i * grid.sizeX + j), firstBoundaryAt(node.boundaryRegionNum, node.coordX, node.coordY))) {
             outStream << format("{:!^106}\n", " Этот узел не похож на верный ответ ");
-            outStream << format("{:!^106}\n", format(" Ожидалось: {: 20.15e} ", firstBoundaryAt(node.coordX, node.coordY)));
-            outStream << format("{:!^106}\n", format(" Погрешность: {: 20.15e} ", abs(ans.at(i * grid.sizeX + j) - firstBoundaryAt(node.coordX, node.coordY))));
-            outStream << format("{:!^106}\n", format(" Относ. погрешность: {: 20.15e} ", (ans.at(i * grid.sizeX + j) - firstBoundaryAt(node.coordX, node.coordY)) / firstBoundaryAt(node.coordX, node.coordY)));
+            outStream << format("{:!^106}\n", format(" Ожидалось: {: 20.15e} ", firstBoundaryAt(node.boundaryRegionNum, node.coordX, node.coordY)));
+            outStream << format("{:!^106}\n", format(" Погрешность: {: 20.15e} ", abs(ans.at(i * grid.sizeX + j) - firstBoundaryAt(node.boundaryRegionNum, node.coordX, node.coordY))));
+            outStream << format("{:!^106}\n", format(" Относ. погрешность: {: 20.15e} ", (ans.at(i * grid.sizeX + j) - firstBoundaryAt(node.boundaryRegionNum, node.coordX, node.coordY)) / firstBoundaryAt(node.boundaryRegionNum, node.coordX, node.coordY)));
          }
 #endif // !NDEBUG
       }

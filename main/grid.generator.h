@@ -3,6 +3,7 @@
 #include <vector>
 #include <format>
 #include <float.h>
+#include <istream>
 
 #include "grid.h"
 
@@ -36,6 +37,7 @@ namespace Grid {
    enum class BoundaryType {
       first,
       second,
+      third,
    };
 
    class BoundaryEdge {
@@ -47,11 +49,13 @@ namespace Grid {
       double yBegin = 0.0;
       double yEnd = 0.0;
 
+      int boundaryRegionNum = 0;
+
       inline bool isAlongX() const { return yBegin == yEnd; }
       inline bool isAlongY() const { return xBegin == xEnd; }
 
-      static BoundaryEdge alongY(double x, double yBegin, double yEnd, BoundaryType type = BoundaryType::first);
-      static BoundaryEdge alongX(double y, double xBegin, double xEnd, BoundaryType type = BoundaryType::first);
+      static BoundaryEdge alongY(double x, double yBegin, double yEnd, int region = 0, BoundaryType type = BoundaryType::first);
+      static BoundaryEdge alongX(double y, double xBegin, double xEnd, int region = 0, BoundaryType type = BoundaryType::first);
    };
 
    /// <summary>

@@ -10,6 +10,7 @@ namespace Grid {
       normal,
       firstBoundary,
       secondBounary,
+      thirdBoundary,
       fictive,
    };
 
@@ -28,6 +29,8 @@ namespace Grid {
       GridNode* bottomNode = nullptr;
 
       NodeType type = NodeType::undefined;
+      int boundaryRegionNum = 0;
+      bool isBoundaryAlongX = false;
 
       /// <summary>
       /// Default constructor of grid element

@@ -8,23 +8,32 @@ inline bool isAlmostEq(double _first, double _second, double maxRelDif) {
    return delta <= maxNum * maxRelDif;
 }
 
-Grid::BoundaryEdge Grid::BoundaryEdge::alongY(double x, double yBegin, double yEnd, BoundaryType type) {
+Grid::BoundaryEdge Grid::BoundaryEdge::alongY(double x, double yBegin, double yEnd, int region, BoundaryType type) {
    auto edge = BoundaryEdge();
    edge.xBegin = edge.xEnd = x;
    edge.yBegin = yBegin;
    edge.yEnd = yEnd;
    edge.type = type;
+   edge.boundaryRegionNum = region;
    return edge;
 }
 
-Grid::BoundaryEdge Grid::BoundaryEdge::alongX(double y, double xBegin, double xEnd, BoundaryType type) {
+Grid::BoundaryEdge Grid::BoundaryEdge::alongX(double y, double xBegin, double xEnd, int region, BoundaryType type) {
    auto edge = BoundaryEdge();
    edge.yBegin = edge.yEnd = y;
    edge.xBegin = xBegin;
    edge.xEnd = xEnd;
    edge.type = type;
+   edge.boundaryRegionNum = region;
    return edge;
 }
+
+Grid::GridMaskElement Grid::GridMaskElement::fictive() {
+   auto elem = GridMaskElement();
+   elem.isFictive = true;
+   return elem;
+}
+
 
 /// <summary>
 /// Функция генерация сетки на основе введённых данных
@@ -58,13 +67,13 @@ Grid::Grid Grid::GenerateGrid() {
       //yRangesComp.push_back(GridRange(6.0, 3.0 / frac));
 
       // Неравномерная сетка с постоянным шагом в каждой области
-      double frac = 1;
-      xRangesComp.push_back(GridRange(3.0, 3.0 / frac));
-      xRangesComp.push_back(GridRange(6.0, 1.5 / frac));
-      xRangesComp.push_back(GridRange(9.0, 3.0 / frac));
+      //double frac = 1;
+      //xRangesComp.push_back(GridRange(3.0, 3.0 / frac));
+      //xRangesComp.push_back(GridRange(6.0, 1.5 / frac));
+      //xRangesComp.push_back(GridRange(9.0, 3.0 / frac));
 
-      yRangesComp.push_back(GridRange(3.0, 3.0 / frac));
-      yRangesComp.push_back(GridRange(6.0, 1.5 / frac));
+      //yRangesComp.push_back(GridRange(3.0, 3.0 / frac));
+      //yRangesComp.push_back(GridRange(6.0, 1.5 / frac));
 
       // Неравномерная сетка
       //xRangesComp.push_back(GridRange(3.0, 3.0));
@@ -74,10 +83,10 @@ Grid::Grid Grid::GenerateGrid() {
       //yRangesComp.push_back(GridRange(3.0, 1.0, 2.0));
       //yRangesComp.push_back(GridRange(6.5, 0.5, 2.0));
 
-       //Сетка с одной областью
-      //double frac = 2.0;
-      //xRangesComp.push_back(GridRange(6.0, 6.0 / frac));
-      //yRangesComp.push_back(GridRange(6.0, 6.0 / frac));
+      //Сетка с одной областью
+      double frac = 8.0;
+      xRangesComp.push_back(GridRange(6.0, 6.0 / frac));
+      yRangesComp.push_back(GridRange(6.0, 6.0 / frac));
 
       // Сетка с одной областью для синуса
       //double frac = 6.0;
@@ -88,15 +97,15 @@ Grid::Grid Grid::GenerateGrid() {
    // Считываем маску сетки
    {
       // Маска равномерной и неравномерной сеток
-      gridMask.push_back(GridMaskElement::fictive());
-      gridMask.push_back(GridMaskElement());
-      gridMask.push_back(GridMaskElement::fictive());
-      gridMask.push_back(GridMaskElement());
-      gridMask.push_back(GridMaskElement());
-      gridMask.push_back(GridMaskElement());
+      //gridMask.push_back(GridMaskElement::fictive());
+      //gridMask.push_back(GridMaskElement());
+      //gridMask.push_back(GridMaskElement::fictive());
+      //gridMask.push_back(GridMaskElement());
+      //gridMask.push_back(GridMaskElement());
+      //gridMask.push_back(GridMaskElement());
 
       // Маска сетки с одной областью
-      //gridMask.push_back(GridMaskElement());
+      gridMask.push_back(GridMaskElement());
    }
 
    // Считываем краевые условия
@@ -112,14 +121,14 @@ Grid::Grid Grid::GenerateGrid() {
       //edges.push_back(BoundaryEdge::alongX(6.0, 0.0, 9.0));
 
       // Для неравномерной сетки с постоянным шагом
-      edges.push_back(BoundaryEdge::alongX(0.0, 3.0, 6.0));
-      edges.push_back(BoundaryEdge::alongY(3.0, 0.0, 3.0));
-      edges.push_back(BoundaryEdge::alongY(6.0, 0.0, 3.0));
-      edges.push_back(BoundaryEdge::alongX(3.0, 0.0, 3.0));
-      edges.push_back(BoundaryEdge::alongX(3.0, 6.0, 9.0));
-      edges.push_back(BoundaryEdge::alongY(0.0, 3.0, 6.0));
-      edges.push_back(BoundaryEdge::alongY(9.0, 3.0, 6.0));
-      edges.push_back(BoundaryEdge::alongX(6.0, 0.0, 9.0));
+      //edges.push_back(BoundaryEdge::alongX(0.0, 3.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongY(3.0, 0.0, 3.0));
+      //edges.push_back(BoundaryEdge::alongY(6.0, 0.0, 3.0));
+      //edges.push_back(BoundaryEdge::alongX(3.0, 0.0, 3.0));
+      //edges.push_back(BoundaryEdge::alongX(3.0, 6.0, 9.0));
+      //edges.push_back(BoundaryEdge::alongY(0.0, 3.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongY(9.0, 3.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongX(6.0, 0.0, 9.0));
 
       // Для неравномерной сетки
       //edges.push_back(BoundaryEdge::alongX(0.0, 3.0, 6.0));
@@ -142,6 +151,54 @@ Grid::Grid Grid::GenerateGrid() {
       //edges.push_back(BoundaryEdge::alongX(1.0, 0.0, 1.0));
       //edges.push_back(BoundaryEdge::alongY(0.0, 0.0, 1.0));
       //edges.push_back(BoundaryEdge::alongY(1.0, 0.0, 1.0));
+
+      // Для сетки из одной области с краевым 2 рода на правой границе
+      //edges.push_back(BoundaryEdge::alongX(0.0, 0.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongX(6.0, 0.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongY(0.0, 0.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongY(6.0, 0.0, 6.0, 0, BoundaryType::second));
+
+      // Для сетки из одной области с краевым 2 рода на левой границе
+      //edges.push_back(BoundaryEdge::alongX(0.0, 0.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongX(6.0, 0.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongY(0.0, 0.0, 6.0, 0, BoundaryType::second));
+      //edges.push_back(BoundaryEdge::alongY(6.0, 0.0, 6.0));
+
+      // Для сетки из одной области с краевым 2 рода на верхней границе
+      //edges.push_back(BoundaryEdge::alongX(0.0, 0.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongX(6.0, 0.0, 6.0, 0, BoundaryType::second));
+      //edges.push_back(BoundaryEdge::alongY(0.0, 0.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongY(6.0, 0.0, 6.0));
+
+      // Для сетки из одной области с краевым 2 рода на нижней границе
+      //edges.push_back(BoundaryEdge::alongX(0.0, 0.0, 6.0, 0, BoundaryType::second));
+      //edges.push_back(BoundaryEdge::alongX(6.0, 0.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongY(0.0, 0.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongY(6.0, 0.0, 6.0));
+
+      // Для сетки из одной области с краевым 3 рода на правой границе
+      edges.push_back(BoundaryEdge::alongX(0.0, 0.0, 6.0));
+      edges.push_back(BoundaryEdge::alongX(6.0, 0.0, 6.0));
+      edges.push_back(BoundaryEdge::alongY(0.0, 0.0, 6.0));
+      edges.push_back(BoundaryEdge::alongY(6.0, 0.0, 6.0, 0, BoundaryType::third));
+
+      // Для сетки из одной области с краевым 3 рода на левой границе
+      //edges.push_back(BoundaryEdge::alongX(0.0, 0.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongX(6.0, 0.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongY(0.0, 0.0, 6.0, 0, BoundaryType::third));
+      //edges.push_back(BoundaryEdge::alongY(6.0, 0.0, 6.0));
+
+      // Для сетки из одной области с краевым 3 рода на верхней границе
+      //edges.push_back(BoundaryEdge::alongX(0.0, 0.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongX(6.0, 0.0, 6.0, 0, BoundaryType::third));
+      //edges.push_back(BoundaryEdge::alongY(0.0, 0.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongY(6.0, 0.0, 6.0));
+
+      // Для сетки из одной области с краевым 3 рода на нижней границе
+      //edges.push_back(BoundaryEdge::alongX(0.0, 0.0, 6.0, 0, BoundaryType::third));
+      //edges.push_back(BoundaryEdge::alongX(6.0, 0.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongY(0.0, 0.0, 6.0));
+      //edges.push_back(BoundaryEdge::alongY(6.0, 0.0, 6.0));
    }
 
    // Декомпрессируем сетку, записываем индексы границ каждой сетки, заодно проверяем на то, чтобы она совпадала по шагам с границами
@@ -307,30 +364,42 @@ Grid::Grid Grid::GenerateGrid() {
 
       // Заполняем все узлы вдоль оси заданного краевого условия
       while (node != nullptr && node->coordX <= edge.xEnd && node->coordY <= edge.yEnd) {
+         if (node->type == NodeType::fictive) {
+            if (edge.isAlongX()) {
+               node = node->rightNode;
+            }
+            else {
+               node = node->topNode;
+            }
+            continue;
+         }
+
          switch (edge.type)
          {
          case BoundaryType::first:
             node->type = NodeType::firstBoundary;
+            node->boundaryRegionNum = edge.boundaryRegionNum;
             break;
 
          case BoundaryType::second:
             node->type = NodeType::secondBounary;
+            node->boundaryRegionNum = edge.boundaryRegionNum;
+            break;
+         case BoundaryType::third:
+            node->type = NodeType::thirdBoundary;
+            node->boundaryRegionNum = edge.boundaryRegionNum;
             break;
          }
          if (edge.isAlongX()) {
+            node->isBoundaryAlongX = true;
             node = node->rightNode;
          }
          else {
+            node->isBoundaryAlongX = false;
             node = node->topNode;
          }
       }
    }
 
    return grid;
-}
-
-Grid::GridMaskElement Grid::GridMaskElement::fictive() {
-   auto elem = GridMaskElement();
-   elem.isFictive = true;
-   return elem;
 }
